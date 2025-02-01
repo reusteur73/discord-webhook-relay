@@ -1,0 +1,22 @@
+name: Discord Webhook Relay
+
+on:
+  workflow_dispatch:
+    inputs:
+      message:
+        description: 'Message à envoyer'
+        required: true
+  repository_dispatch: 
+    types: [discord_notify]
+
+jobs:
+  notify:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Envoyer le message à Discord
+        env:
+          DISCORD_WEBHOOK: ${{ secrets.DISCORD_WEBHOOK }}
+          MESSAGE: ${{ github.event.inputs.message || github.event.client_payload.message }}
+        run: |
+          curl -X POST -H "Content-Type: application/json" \
+          -d "{\"content\": \"$MESSAGE\"}" $DISCORD_WEBHOOK
